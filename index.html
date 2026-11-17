@@ -185,8 +185,8 @@
                 </div>
             </div>
 
-            <button onclick="openSurpriseEnvelope()"
-                class="px-8 py-3.5 rounded-full bg-gradient-to-r from-burgundy-800 to-roseGold-600 text-cream-50 font-medium text-sm sm:text-base shadow-lg shadow-burgundy-900/20 hover:shadow-xl hover:brightness-110 transition-all active:scale-95">
+            <button type="button" id="openEnvelopeBtn" onclick="openSurpriseEnvelope()"
+                class="px-8 py-4 rounded-full bg-gradient-to-r from-burgundy-800 to-roseGold-600 text-cream-50 font-medium text-base shadow-lg shadow-burgundy-900/20 hover:shadow-xl hover:brightness-110 transition-all active:scale-95 touch-manipulation cursor-pointer">
                 Dokun ve Aç ✨
             </button>
         </div>
@@ -729,13 +729,34 @@
         window.blowOutCandles = blowOutCandles;
         window.enableMicBlowDetection = enableMicBlowDetection;
 
-        window.addEventListener('resize', resizeCanvases);
-        window.onload = function () {
+        function initApp() {
             loadLetter();
             resizeCanvases();
             initFloatingHearts();
             animateCanvases();
-        };
+
+            const envelopeBox = document.getElementById('envelopeBox');
+            const openBtn = document.getElementById('openEnvelopeBtn');
+            if (envelopeBox) {
+                envelopeBox.addEventListener('touchend', function (e) {
+                    e.preventDefault();
+                    openSurpriseEnvelope();
+                }, { passive: false });
+            }
+            if (openBtn) {
+                openBtn.addEventListener('touchend', function (e) {
+                    e.preventDefault();
+                    openSurpriseEnvelope();
+                }, { passive: false });
+            }
+        }
+
+        window.addEventListener('resize', resizeCanvases);
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initApp);
+        } else {
+            initApp();
+        }
     </script>
 </body>
 </html>
