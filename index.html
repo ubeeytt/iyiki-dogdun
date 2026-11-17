@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="tr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İyi Ki Doğdun Aşkım ❤️</title>
+    
+    <!-- Google Fonts: Playfair Display & Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        serif: ['"Playfair Display"', 'Georgia', 'serif'],
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    colors: {
+                        cream: {
+                            50: '#FFFDFB',
+                            100: '#FDF6F0',
+                            200: '#F8E8DC',
+                        },
+                        roseGold: {
+                            300: '#E8B4B8',
+                            400: '#D8969C',
+                            500: '#C4777E',
+                            600: '#A65B63',
+                        },
+                        burgundy: {
+                            700: '#722637',
+                            800: '#5A1A29',
+                            900: '#42111D',
+                        }
+                    },
+                    animation: {
+                        'float-slow': 'float 6s ease-in-out infinite',
+                        'float-delayed': 'float 7s ease-in-out 2s infinite',
+                        'pulse-soft': 'pulseSoft 3s ease-in-out infinite',
+                        'flicker': 'flicker 0.8s infinite alternate',
+                        'smoke': 'smokeUp 2s ease-out forwards',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+                            '50%': { transform: 'translateY(-14px) rotate(3deg)' },
+                        },
+                        pulseSoft: {
+                            '0%, 100%': { transform: 'scale(1)', opacity: '1' },
+                            '50%': { transform: 'scale(1.04)', opacity: '0.92' },
+                        },
+                        flicker: {
+                            '0%': { transform: 'scale(1) rotate(-2deg)', opacity: '0.95' },
+                            '50%': { transform: 'scale(1.08, 0.94) rotate(1deg)', opacity: '1' },
+                            '100%': { transform: 'scale(0.95, 1.05) rotate(3deg)', opacity: '0.9' },
+                        },
+                        smokeUp: {
+                            '0%': { opacity: '0.85', transform: 'translateY(0) scale(0.8)' },
+                            '100%': { opacity: '0', transform: 'translateY(-35px) scale(2.2)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Özel Kaydırma Çubuğu ve Temel Stiller */
+        body {
+            background: radial-gradient(circle at 15% 10%, #FFF5F2 0%, #FDF6F0 45%, #F6E6E1 100%);
+            color: #42111D;
+            overflow-x: hidden;
+        }
+
+        /* Glassmorphism Kart Efekti */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.68);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(232, 180, 184, 0.45);
+            box-shadow: 0 12px 36px -8px rgba(90, 26, 41, 0.08);
+        }
+
+        .glass-card-strong {
+            background: rgba(255, 253, 251, 0.85);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(216, 150, 156, 0.5);
+            box-shadow: 0 20px 50px -12px rgba(90, 26, 41, 0.14);
+        }
+
+        /* Zarf Kapağı Animasyonu */
+        .envelope-flap {
+            transform-origin: top;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), z-index 0.2s 0.3s;
+        }
+        .envelope-open .envelope-flap {
+            transform: rotateX(180deg);
+            z-index: 0;
+        }
+        .envelope-letter {
+            transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.35s;
+        }
+        .envelope-open .envelope-letter {
+            transform: translateY(-65px);
+        }
+
+        /* Mum Alevi Parıltısı */
+        .candle-glow {
+            box-shadow: 0 0 18px 6px rgba(255, 195, 77, 0.65), 0 0 36px 12px rgba(255, 120, 80, 0.35);
+        }
+    </style>
+</head>
+<body class="font-sans antialiased selection:bg-roseGold-300 selection:text-burgundy-900 min-h-screen relative">
+
+    <!-- Arka Plan Yüzen Kalpler & Parıltılar Canvas -->
+    <canvas id="ambientCanvas" class="fixed inset-0 pointer-events-none z-0"></canvas>
+    <!-- Kutlama Konfeti Canvas -->
+    <canvas id="confettiCanvas" class="fixed inset-0 pointer-events-none z-50"></canvas>
+
+    <!-- Ses Kontrol Butonu (Sağ Üst Sabit) -->
+    <div class="fixed top-4 right-4 z-40 flex items-center gap-2">
+        <button id="musicToggleBtn" onclick="toggleBirthdayMusic()" aria-label="Müziği Aç veya Kapat"
+            class="glass-card-strong px-3.5 py-2.5 rounded-full flex items-center gap-2 text-xs sm:text-sm font-medium text-burgundy-800 hover:bg-white transition-all shadow-md active:scale-95">
+            <span id="musicIcon" class="text-base">🔇</span>
+            <span id="musicLabel" class="hidden sm:inline">Melodiyi Çal</span>
+        </button>
+    </div>
+
+    <!-- =========================================================
+         1. GİRİŞ EKRANI: İNTERAKTİF ZARF / SÜRPRİZ KUTUSU
+    ========================================================== -->
+    <section id="introOverlay" class="fixed inset-0 z-40 flex flex-col items-center justify-center px-4 bg-gradient-to-br from-cream-50 via-cream-100 to-roseGold-300/30 transition-all duration-1000">
+        <div class="max-w-md w-full text-center space-y-6">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/80 border border-roseGold-300/50 text-burgundy-700 text-xs font-semibold tracking-wider uppercase shadow-sm animate-pulse-soft">
+                <span>✨</span> Bugün Senin Günün <span>✨</span>
+            </div>
+
+            <h1 class="font-serif text-3xl sm:text-4xl font-bold text-burgundy-900 leading-tight">
+                Balım’a<br>
+                <span class="italic font-normal text-roseGold-600">Özel Bir Not</span>
+            </h1>
+
+            <!-- İnteraktif Zarf İllüstrasyonu -->
+            <div class="py-6 flex justify-center">
+                <div id="envelopeBox" onclick="openSurpriseEnvelope()" role="button" tabindex="0" aria-label="Zarfı Aç"
+                    class="relative w-72 h-48 sm:w-80 sm:h-52 cursor-pointer group select-none transition-transform duration-500 hover:scale-105 active:scale-95">
+                    
+                    <!-- Zarf Arka Gövdesi -->
+                    <div class="absolute inset-0 bg-gradient-to-b from-roseGold-400 to-roseGold-500 rounded-2xl shadow-2xl border border-roseGold-300"></div>
+                    
+                    <!-- Zarf İçindeki Kart (Açılınca Yukarı Çıkar) -->
+                    <div class="envelope-letter absolute inset-x-4 top-3 bottom-4 bg-cream-50 rounded-xl shadow-md p-4 flex flex-col items-center justify-center border border-roseGold-300/40 z-10">
+                        <span class="text-2xl mb-1">💌</span>
+                        <p class="font-serif text-burgundy-800 font-semibold text-base">İyi Ki Doğdun</p>
+                        <p class="text-xs text-roseGold-600 font-medium">Çiçeğim ❤️</p>
+                    </div>
+
+                    <!-- Zarf Ön Cepleri (SVG) -->
+                    <svg class="absolute inset-0 w-full h-full z-20 pointer-events-none rounded-2xl" viewBox="0 0 320 208" preserveAspectRatio="none">
+                        <!-- Sol Üçgen -->
+                        <polygon points="0,0 165,112 0,208" fill="#DF9FA4" />
+                        <!-- Sağ Üçgen -->
+                        <polygon points="320,0 155,112 320,208" fill="#D68E94" />
+                        <!-- Alt Üçgen -->
+                        <polygon points="0,208 160,98 320,208" fill="#E8B4B8" />
+                    </svg>
+
+                    <!-- Zarf Üst Kapağı -->
+                    <div class="envelope-flap absolute inset-x-0 top-0 h-32 z-30 pointer-events-none">
+                        <svg class="w-full h-full drop-shadow-md" viewBox="0 0 320 128" preserveAspectRatio="none">
+                            <polygon points="0,0 320,0 160,118" fill="#C97B82" />
+                        </svg>
+                    </div>
+
+                    <!-- Balmumu Mühür (Kalp) -->
+                    <div id="waxSeal" class="absolute left-1/2 top-[52%] -translate-x-1/2 -translate-y-1/2 z-30 w-14 h-14 rounded-full bg-gradient-to-br from-burgundy-700 to-burgundy-900 shadow-lg border-2 border-roseGold-300/70 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <span class="text-cream-50 text-xl">❤️</span>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="openSurpriseEnvelope()"
+                class="px-8 py-3.5 rounded-full bg-gradient-to-r from-burgundy-800 to-roseGold-600 text-cream-50 font-medium text-sm sm:text-base shadow-lg shadow-burgundy-900/20 hover:shadow-xl hover:brightness-110 transition-all active:scale-95">
+                Dokun ve Aç ✨
+            </button>
+        </div>
+    </section>
+
+    <!-- =========================================================
+         ANA İÇERİK (ZARF AÇILDIKTAN SONRA GÖRÜNÜR)
+    ========================================================== -->
+    <main id="mainContent" class="relative z-10 opacity-0 pointer-events-none transition-opacity duration-1000 pb-24">
+        
+        <!-- HERO BÖLÜMÜ -->
+        <header class="pt-16 sm:pt-24 pb-12 px-4 sm:px-6 max-w-4xl mx-auto text-center">
+            <!-- Dekoratif Çiçek / Yıldız Taç SVG -->
+            <div class="flex justify-center mb-5 animate-float-slow">
+                <svg class="w-16 h-16 text-roseGold-500" viewBox="0 0 64 64" fill="none">
+                    <path d="M32 8C34.5 18 42 22 52 24C42 26 34.5 30 32 40C29.5 30 22 26 12 24C22 22 29.5 18 32 8Z" fill="currentColor" fill-opacity="0.25" stroke="currentColor" stroke-width="1.8"/>
+                    <path d="M48 38C49 42 52 44 56 45C52 46 49 48 48 52C47 48 44 46 40 45C44 44 47 42 48 38Z" fill="currentColor"/>
+                    <path d="M16 40C17 43 19 45 22 46C19 47 17 49 16 52C15 49 13 47 10 46C13 45 15 43 16 40Z" fill="currentColor"/>
+                </svg>
+            </div>
+
+            <p class="text-xs sm:text-sm uppercase tracking-[0.25em] text-roseGold-600 font-semibold mb-3">
+                Yeni Yaşın Kutlu Olsun
+            </p>
+
+            <h1 class="font-serif text-4xl sm:text-6xl md:text-7xl font-bold text-burgundy-900 tracking-tight leading-[1.12] mb-5">
+                İyi Ki Doğdun<br>
+                <span class="bg-gradient-to-r from-burgundy-800 via-roseGold-600 to-burgundy-700 bg-clip-text text-transparent italic pr-1">
+                    Aşkım!
+                </span> ❤️
+            </h1>
+
+            <p class="max-w-lg mx-auto text-burgundy-800/80 text-base sm:text-lg leading-relaxed font-normal">
+                Yeni yaşında yüzünden gülümseme, hayatından keyif ve huzur hiç eksik olmasın.
+            </p>
+
+            <!-- Hızlı Gezinme Hapları -->
+            <nav class="mt-8 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
+                <a href="#mektup" class="glass-card px-4 py-2 rounded-full text-xs sm:text-sm font-medium text-burgundy-800 hover:bg-white transition">💌 Sana Notum</a>
+                <a href="#pasta" class="glass-card px-4 py-2 rounded-full text-xs sm:text-sm font-medium text-burgundy-800 hover:bg-white transition">🎂 Dilek Tut & Üfle</a>
+            </nav>
+        </header>
+
+        <!-- =========================================================
+             2. SAMİMİ DOĞUM GÜNÜ NOTU (DÜZENLENEBİLİR)
+        ========================================================== -->
+        <section id="mektup" class="py-8 px-4 sm:px-6 max-w-2xl mx-auto">
+            <div class="glass-card-strong rounded-3xl p-6 sm:p-10 relative overflow-hidden">
+                <!-- Köşe Süsü -->
+                <div class="absolute -top-10 -right-10 w-36 h-36 bg-roseGold-300/25 rounded-full blur-2xl pointer-events-none"></div>
+                <div class="absolute -bottom-10 -left-10 w-36 h-36 bg-burgundy-700/10 rounded-full blur-2xl pointer-events-none"></div>
+
+                <div class="flex flex-wrap items-center justify-between gap-3 mb-5 pb-4 border-b border-roseGold-300/35">
+                    <div>
+                        <span class="text-xs font-semibold uppercase tracking-widest text-roseGold-600">İçimden Gelenler</span>
+                        <h2 class="font-serif text-2xl sm:text-3xl font-bold text-burgundy-900 mt-0.5">İyi ki doğdun Çiçeğim,</h2>
+                    </div>
+                </div>
+
+                <!-- Okuma Modu -->
+                <div id="letterDisplay" class="space-y-4 text-burgundy-900/90 text-base sm:text-lg leading-relaxed font-normal whitespace-pre-line"></div>
+
+                <!-- İmza -->
+                <div class="mt-7 pt-4 flex items-center justify-end">
+                    <div class="text-right">
+                        <p class="font-serif italic text-xl sm:text-2xl text-burgundy-800 font-semibold">Sevgiyle, Ubeyt</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================================================
+             3. İNTERAKTİF DOĞUM GÜNÜ PASTASI & MUMLARI ÜFLEME
+        ========================================================== -->
+        <section id="pasta" class="py-10 px-4 sm:px-6 max-w-2xl mx-auto">
+            <div class="glass-card-strong rounded-3xl p-6 sm:p-10 text-center relative overflow-hidden">
+                <span class="text-xs font-semibold uppercase tracking-widest text-roseGold-600">Dilek Zamanı</span>
+                <h2 class="font-serif text-3xl sm:text-4xl font-bold text-burgundy-900 mt-1">Gözlerini Kapat ve Bir Dilek Tut</h2>
+                <p id="cakeStatusText" class="text-sm sm:text-base text-burgundy-800/80 mt-2 max-w-md mx-auto">
+                    Yeni yaşın için güzel bir dilek tut ve aşağıdaki butona basarak (veya mikrofona üfleyerek) mumları söndür!
+                </p>
+
+                <!-- CSS / SVG Çok Katmanlı Doğum Günü Pastası -->
+                <div class="relative mx-auto mt-10 mb-8 w-64 sm:w-72 h-64 flex flex-col items-center justify-end select-none">
+                    
+                    <!-- Mumlar Grubu -->
+                    <div id="candlesContainer" class="flex items-end justify-center gap-5 sm:gap-6 z-20 -mb-1">
+                        <!-- Mum 1 -->
+                        <div class="relative flex flex-col items-center">
+                            <!-- Duman Efekti (Üfleyince görünür) -->
+                            <div class="smoke-wisp hidden absolute -top-8 w-3 h-3 rounded-full bg-gray-300/80 blur-[2px]"></div>
+                            <!-- Alev -->
+                            <div class="candle-flame w-3.5 h-5 rounded-full bg-gradient-to-t from-amber-500 via-yellow-300 to-white candle-glow animate-flicker mb-0.5"></div>
+                            <!-- Fitil -->
+                            <div class="w-0.5 h-2 bg-burgundy-900"></div>
+                            <!-- Mum Gövdesi -->
+                            <div class="w-3 h-11 rounded-t-md bg-gradient-to-b from-cream-50 to-roseGold-300 border border-roseGold-400/50 shadow-sm overflow-hidden">
+                                <div class="w-full h-2 bg-roseGold-500/40 mt-2 -skew-y-12"></div>
+                                <div class="w-full h-2 bg-roseGold-500/40 mt-2 -skew-y-12"></div>
+                            </div>
+                        </div>
+
+                        <!-- Mum 2 (Orta - Biraz daha uzun) -->
+                        <div class="relative flex flex-col items-center">
+                            <div class="smoke-wisp hidden absolute -top-8 w-3 h-3 rounded-full bg-gray-300/80 blur-[2px]"></div>
+                            <div class="candle-flame w-4 h-6 rounded-full bg-gradient-to-t from-orange-500 via-yellow-300 to-white candle-glow animate-flicker mb-0.5"></div>
+                            <div class="w-0.5 h-2 bg-burgundy-900"></div>
+                            <div class="w-3.5 h-14 rounded-t-md bg-gradient-to-b from-cream-50 to-burgundy-700/80 border border-burgundy-700/30 shadow-sm overflow-hidden">
+                                <div class="w-full h-2 bg-cream-50/50 mt-2.5 -skew-y-12"></div>
+                                <div class="w-full h-2 bg-cream-50/50 mt-2.5 -skew-y-12"></div>
+                            </div>
+                        </div>
+
+                        <!-- Mum 3 -->
+                        <div class="relative flex flex-col items-center">
+                            <div class="smoke-wisp hidden absolute -top-8 w-3 h-3 rounded-full bg-gray-300/80 blur-[2px]"></div>
+                            <div class="candle-flame w-3.5 h-5 rounded-full bg-gradient-to-t from-amber-500 via-yellow-300 to-white candle-glow animate-flicker mb-0.5"></div>
+                            <div class="w-0.5 h-2 bg-burgundy-900"></div>
+                            <div class="w-3 h-11 rounded-t-md bg-gradient-to-b from-cream-50 to-roseGold-300 border border-roseGold-400/50 shadow-sm overflow-hidden">
+                                <div class="w-full h-2 bg-roseGold-500/40 mt-2 -skew-y-12"></div>
+                                <div class="w-full h-2 bg-roseGold-500/40 mt-2 -skew-y-12"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pasta Üst Katmanı -->
+                    <div class="relative w-44 sm:w-48 h-16 rounded-t-2xl bg-gradient-to-r from-roseGold-300 via-roseGold-400 to-roseGold-300 shadow-inner z-10 flex items-start justify-around overflow-hidden border-t border-white/60">
+                        <!-- Krema Damlaları -->
+                        <div class="w-6 h-5 bg-cream-50 rounded-b-full shadow-sm"></div>
+                        <div class="w-7 h-7 bg-cream-50 rounded-b-full shadow-sm"></div>
+                        <div class="w-5 h-4 bg-cream-50 rounded-b-full shadow-sm"></div>
+                        <div class="w-7 h-6 bg-cream-50 rounded-b-full shadow-sm"></div>
+                        <div class="w-6 h-5 bg-cream-50 rounded-b-full shadow-sm"></div>
+                    </div>
+
+                    <!-- Pasta Alt Katmanı -->
+                    <div class="relative w-56 sm:w-64 h-20 rounded-t-2xl rounded-b-lg bg-gradient-to-r from-burgundy-800 via-burgundy-700 to-burgundy-800 shadow-lg z-10 flex flex-col justify-between overflow-hidden border-t-2 border-cream-100">
+                        <!-- Krema Damlaları -->
+                        <div class="flex items-start justify-around">
+                            <div class="w-6 h-4 bg-cream-100 rounded-b-full"></div>
+                            <div class="w-8 h-6 bg-cream-100 rounded-b-full"></div>
+                            <div class="w-6 h-4 bg-cream-100 rounded-b-full"></div>
+                            <div class="w-8 h-5 bg-cream-100 rounded-b-full"></div>
+                            <div class="w-6 h-4 bg-cream-100 rounded-b-full"></div>
+                            <div class="w-6 h-4 bg-cream-100 rounded-b-full"></div>
+                        </div>
+                        <!-- Ortada Küçük Kalp Süsü -->
+                        <div class="text-center pb-2 text-roseGold-300 text-xs tracking-widest">
+                            ♥ BİTANEM ♥
+                        </div>
+                    </div>
+
+                    <!-- Pasta Tabağı -->
+                    <div class="w-64 sm:w-72 h-3.5 rounded-full bg-gradient-to-r from-roseGold-300/60 via-white to-roseGold-300/60 shadow-md border border-roseGold-300/50"></div>
+                </div>
+
+                <!-- Etkileşim Butonları -->
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+                    <button id="blowCandlesBtn" onclick="blowOutCandles()"
+                        class="w-full sm:w-auto px-7 py-3.5 rounded-full bg-gradient-to-r from-burgundy-800 to-roseGold-600 text-cream-50 font-semibold text-sm sm:text-base shadow-lg hover:brightness-110 transition active:scale-95 flex items-center justify-center gap-2">
+                        <span>🌬️</span>
+                        <span id="blowBtnLabel">Dilek Tut ve Mumları Üfle</span>
+                    </button>
+
+                    <button id="micBlowBtn" onclick="enableMicBlowDetection()"
+                        class="w-full sm:w-auto px-5 py-3.5 rounded-full glass-card text-burgundy-800 font-medium text-xs sm:text-sm hover:bg-white transition active:scale-95 flex items-center justify-center gap-2">
+                        <span>🎙️</span>
+                        <span id="micBtnLabel">Mikrofonla Üfle</span>
+                    </button>
+                </div>
+                <p id="micFeedback" class="text-xs text-roseGold-600 mt-2.5 hidden"></p>
+            </div>
+        </section>
+
+        <!-- Alt Bilgi (Footer) -->
+        <footer class="mt-10 text-center px-4">
+            <div class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full glass-card text-xs sm:text-sm text-burgundy-800/80">
+                <span>❤️</span>
+                <span>Balım için hazırlandı</span>
+                <span>•</span>
+                <span class="font-serif italic font-semibold text-burgundy-900">Ubeyt</span>
+            </div>
+        </footer>
+    </main>
+
+    <!-- =========================================================
+         JAVASCRIPT: ETKİLEŞİMLER, WEB AUDIO MELODİ, KONFETİ & EFEKTLER
+    ========================================================== -->
+    <script>
+        // --- 1. VARSAYILAN VERİLER ---
+        const DEFAULT_LETTER = `Yeni bir yaş, yeni bir heyecandır aşkım. Gözlerinin içi kadar parlak, kalbin kadar temiz ve en az senin kadar nice mutlu yıllara bitanem. İyi ki doğdun, iyi ki varsın güzelim...`;
+
+        // --- 2. DURUM (STATE) YÖNETİMİ ---
+        let candlesLit = true;
+        let envelopeOpened = false;
+
+        // Müzik & Mikrofon Değişkenleri
+        let audioCtx = null;
+        let isPlayingMusic = false;
+        let musicTimeout = null;
+        let micStream = null;
+        let micCheckInterval = null;
+
+        // --- 3. ZARF AÇILIŞ ANİMASYONU & GİRİŞ ---
+        function openSurpriseEnvelope() {
+            if (envelopeOpened) return;
+            envelopeOpened = true;
+
+            const envelopeBox = document.getElementById('envelopeBox');
+            const waxSeal = document.getElementById('waxSeal');
+            const introOverlay = document.getElementById('introOverlay');
+            const mainContent = document.getElementById('mainContent');
+
+            if (envelopeBox) envelopeBox.classList.add('envelope-open');
+            if (waxSeal) waxSeal.style.opacity = '0';
+
+            // Konfeti patlat ve müziği başlat
+            triggerConfettiBurst(120);
+            if (!isPlayingMusic) {
+                startBirthdayMelody();
+            }
+
+            setTimeout(() => {
+                if (introOverlay) {
+                    introOverlay.style.opacity = '0';
+                    introOverlay.style.transform = 'scale(1.04)';
+                    introOverlay.style.pointerEvents = 'none';
+                }
+                if (mainContent) {
+                    mainContent.classList.remove('opacity-0', 'pointer-events-none');
+                    mainContent.classList.add('opacity-100');
+                }
+                setTimeout(() => {
+                    if (introOverlay) introOverlay.style.display = 'none';
+                }, 900);
+            }, 950);
+        }
+
+        // --- 4. DOĞUM GÜNÜ NOTU YÖNETİMİ ---
+        function loadLetter() {
+            const display = document.getElementById('letterDisplay');
+            if (display) display.textContent = DEFAULT_LETTER;
+        }
+
+        // --- 5. PASTA MUMLARI ÜFLEME & YENİDEN YAKMA ---
+        function blowOutCandles() {
+            const flames = document.querySelectorAll('.candle-flame');
+            const smokes = document.querySelectorAll('.smoke-wisp');
+            const statusText = document.getElementById('cakeStatusText');
+            const btnLabel = document.getElementById('blowBtnLabel');
+
+            if (candlesLit) {
+                candlesLit = false;
+                flames.forEach(f => f.classList.add('hidden'));
+                smokes.forEach(s => {
+                    s.classList.remove('hidden', 'animate-smoke');
+                    void s.offsetWidth; // Animasyonu sıfırla
+                    s.classList.add('animate-smoke');
+                });
+
+                if (statusText) {
+                    statusText.innerHTML = `<span class="font-semibold text-burgundy-900">Dileğin kabul olsun Bitanem! ✨</span> Nice mutlu, sağlıklı ve birlikte güzel yıllara!`;
+                }
+                if (btnLabel) {
+                    btnLabel.textContent = 'Mumları Tekrar Yak 🔥';
+                }
+                triggerConfettiBurst(160);
+                stopMicBlowDetection();
+            } else {
+                candlesLit = true;
+                flames.forEach(f => f.classList.remove('hidden'));
+                smokes.forEach(s => s.classList.add('hidden'));
+                if (statusText) {
+                    statusText.textContent = 'Yeni yaşın için güzel bir dilek tut ve aşağıdaki butona basarak (veya mikrofona üfleyerek) mumları söndür!';
+                }
+                if (btnLabel) {
+                    btnLabel.textContent = 'Dilek Tut ve Mumları Üfle';
+                }
+            }
+        }
+
+        // --- 6. MİKROFON İLE ÜFLEME ALGILAMA ---
+        async function enableMicBlowDetection() {
+            const feedback = document.getElementById('micFeedback');
+            const micLabel = document.getElementById('micBtnLabel');
+
+            if (micStream) {
+                stopMicBlowDetection();
+                return;
+            }
+
+            if (!candlesLit) {
+                blowOutCandles();
+            }
+
+            try {
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    throw new Error('Tarayıcı mikrofon erişimini desteklemiyor.');
+                }
+
+                micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                const micAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const source = micAudioCtx.createMediaStreamSource(micStream);
+                const analyser = micAudioCtx.createAnalyser();
+                analyser.fftSize = 256;
+                source.connect(analyser);
+
+                const dataArray = new Uint8Array(analyser.frequencyBinCount);
+                if (micLabel) micLabel.textContent = 'Dinleniyor... Üfle!';
+                if (feedback) {
+                    feedback.textContent = 'Telefonun veya bilgisayarın mikrofonuna doğru hafifçe üfle 🌬️';
+                    feedback.classList.remove('hidden');
+                }
+
+                micCheckInterval = setInterval(() => {
+                    analyser.getByteFrequencyData(dataArray);
+                    let sum = 0;
+                    for (let i = 0; i < dataArray.length; i++) {
+                        sum += dataArray[i];
+                    }
+                    const average = sum / dataArray.length;
+
+                    if (average > 52 && candlesLit) {
+                        blowOutCandles();
+                    }
+                }, 100);
+            } catch (err) {
+                if (feedback) {
+                    feedback.textContent = 'Mikrofon izni alınamadı; soldaki butona dokunarak da mumları üfleyebilirsin.';
+                    feedback.classList.remove('hidden');
+                }
+            }
+        }
+
+        function stopMicBlowDetection() {
+            const micLabel = document.getElementById('micBtnLabel');
+            const feedback = document.getElementById('micFeedback');
+            if (micCheckInterval) {
+                clearInterval(micCheckInterval);
+                micCheckInterval = null;
+            }
+            if (micStream) {
+                micStream.getTracks().forEach(track => track.stop());
+                micStream = null;
+            }
+            if (micLabel) micLabel.textContent = 'Mikrofonla Üfle';
+            if (feedback) feedback.classList.add('hidden');
+        }
+
+        // --- 7. WEB AUDIO API İLE YUMUŞAK DOĞUM GÜNÜ MELODİSİ ---
+        function startBirthdayMelody() {
+            try {
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContextClass) return;
+                if (!audioCtx) audioCtx = new AudioContextClass();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+
+                isPlayingMusic = true;
+                updateMusicUI();
+
+                // "İyi Ki Doğdun" nota frekansları ve süreleri
+                const notes = [
+                    { f: 261.63, d: 0.35 }, { f: 261.63, d: 0.25 }, { f: 293.66, d: 0.6 }, { f: 261.63, d: 0.6 }, { f: 349.23, d: 0.6 }, { f: 329.63, d: 1.0 },
+                    { f: 261.63, d: 0.35 }, { f: 261.63, d: 0.25 }, { f: 293.66, d: 0.6 }, { f: 261.63, d: 0.6 }, { f: 392.00, d: 0.6 }, { f: 349.23, d: 1.0 },
+                    { f: 261.63, d: 0.35 }, { f: 261.63, d: 0.25 }, { f: 523.25, d: 0.6 }, { f: 440.00, d: 0.6 }, { f: 349.23, d: 0.6 }, { f: 329.63, d: 0.6 }, { f: 293.66, d: 1.0 },
+                    { f: 466.16, d: 0.35 }, { f: 466.16, d: 0.25 }, { f: 440.00, d: 0.6 }, { f: 349.23, d: 0.6 }, { f: 392.00, d: 0.6 }, { f: 349.23, d: 1.1 }
+                ];
+
+                let step = 0;
+                function playNextNote() {
+                    if (!isPlayingMusic) return;
+                    const note = notes[step % notes.length];
+
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(note.f, audioCtx.currentTime);
+
+                    gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.07, audioCtx.currentTime + 0.05);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + note.d);
+
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + note.d + 0.05);
+
+                    step++;
+                    const pauseAfterPhrase = (step % notes.length === 0) ? 1400 : note.d * 1000;
+                    musicTimeout = setTimeout(playNextNote, pauseAfterPhrase);
+                }
+
+                playNextNote();
+            } catch (e) {
+                isPlayingMusic = false;
+                updateMusicUI();
+            }
+        }
+
+        function stopBirthdayMelody() {
+            isPlayingMusic = false;
+            if (musicTimeout) {
+                clearTimeout(musicTimeout);
+                musicTimeout = null;
+            }
+            updateMusicUI();
+        }
+
+        function toggleBirthdayMusic() {
+            if (isPlayingMusic) {
+                stopBirthdayMelody();
+            } else {
+                startBirthdayMelody();
+            }
+        }
+
+        function updateMusicUI() {
+            const icon = document.getElementById('musicIcon');
+            const label = document.getElementById('musicLabel');
+            if (icon) icon.textContent = isPlayingMusic ? '🎵' : '🔇';
+            if (label) label.textContent = isPlayingMusic ? 'Müziği Durdur' : 'Melodiyi Çal';
+        }
+
+        // --- 8. CANVAS: YÜZEN KALPLER VE KONFETİ SİSTEMİ ---
+        const ambientCanvas = document.getElementById('ambientCanvas');
+        const ambientCtx = ambientCanvas ? ambientCanvas.getContext('2d') : null;
+        const confettiCanvas = document.getElementById('confettiCanvas');
+        const confettiCtx = confettiCanvas ? confettiCanvas.getContext('2d') : null;
+
+        let floatingParticles = [];
+        let confettiParticles = [];
+
+        function resizeCanvases() {
+            if (ambientCanvas) {
+                ambientCanvas.width = window.innerWidth;
+                ambientCanvas.height = window.innerHeight;
+            }
+            if (confettiCanvas) {
+                confettiCanvas.width = window.innerWidth;
+                confettiCanvas.height = window.innerHeight;
+            }
+        }
+
+        function initFloatingHearts() {
+            floatingParticles = [];
+            const count = Math.min(26, Math.floor(window.innerWidth / 45));
+            for (let i = 0; i < count; i++) {
+                floatingParticles.push({
+                    x: Math.random() * window.innerWidth,
+                    y: Math.random() * window.innerHeight,
+                    size: 8 + Math.random() * 10,
+                    speedY: 0.25 + Math.random() * 0.45,
+                    drift: (Math.random() - 0.5) * 0.4,
+                    alpha: 0.15 + Math.random() * 0.25,
+                    isHeart: Math.random() > 0.35
+                });
+            }
+        }
+
+        function triggerConfettiBurst(amount = 100) {
+            const colors = ['#722637', '#C4777E', '#E8B4B8', '#F59E0B', '#FFFDFB', '#FB7185'];
+            for (let i = 0; i < amount; i++) {
+                confettiParticles.push({
+                    x: window.innerWidth * (0.2 + Math.random() * 0.6),
+                    y: window.innerHeight * 0.45,
+                    vx: (Math.random() - 0.5) * 14,
+                    vy: -6 - Math.random() * 10,
+                    size: 5 + Math.random() * 6,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    rotation: Math.random() * 360,
+                    rotSpeed: (Math.random() - 0.5) * 12,
+                    gravity: 0.24
+                });
+            }
+        }
+
+        function drawMiniHeart(ctx, x, y, size) {
+            ctx.beginPath();
+            const topCurveHeight = size * 0.3;
+            ctx.moveTo(x, y + topCurveHeight);
+            ctx.bezierCurveTo(x, y, x - size / 2, y, x - size / 2, y + topCurveHeight);
+            ctx.bezierCurveTo(x - size / 2, y + (size + topCurveHeight) / 2, x, y + (size + topCurveHeight) / 1.4, x, y + size);
+            ctx.bezierCurveTo(x, y + (size + topCurveHeight) / 1.4, x + size / 2, y + (size + topCurveHeight) / 2, x + size / 2, y + topCurveHeight);
+            ctx.bezierCurveTo(x + size / 2, y, x, y, x, y + topCurveHeight);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function animateCanvases() {
+            if (ambientCtx && ambientCanvas) {
+                ambientCtx.clearRect(0, 0, ambientCanvas.width, ambientCanvas.height);
+                floatingParticles.forEach(p => {
+                    p.y -= p.speedY;
+                    p.x += p.drift;
+                    if (p.y < -25) {
+                        p.y = ambientCanvas.height + 20;
+                        p.x = Math.random() * ambientCanvas.width;
+                    }
+                    ambientCtx.fillStyle = `rgba(196, 119, 126, ${p.alpha})`;
+                    if (p.isHeart) {
+                        drawMiniHeart(ambientCtx, p.x, p.y, p.size);
+                    } else {
+                        ambientCtx.beginPath();
+                        ambientCtx.arc(p.x, p.y, p.size * 0.25, 0, Math.PI * 2);
+                        ambientCtx.fill();
+                    }
+                });
+            }
+
+            if (confettiCtx && confettiCanvas) {
+                confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+                for (let i = confettiParticles.length - 1; i >= 0; i--) {
+                    const c = confettiParticles[i];
+                    c.x += c.vx;
+                    c.y += c.vy;
+                    c.vy += c.gravity;
+                    c.vx *= 0.99;
+                    c.rotation += c.rotSpeed;
+
+                    confettiCtx.save();
+                    confettiCtx.translate(c.x, c.y);
+                    confettiCtx.rotate((c.rotation * Math.PI) / 180);
+                    confettiCtx.fillStyle = c.color;
+                    confettiCtx.fillRect(-c.size / 2, -c.size / 2, c.size, c.size * 0.6);
+                    confettiCtx.restore();
+
+                    if (c.y > confettiCanvas.height + 30) {
+                        confettiParticles.splice(i, 1);
+                    }
+                }
+            }
+
+            requestAnimationFrame(animateCanvases);
+        }
+
+        // Global erişim garantisi
+        window.openSurpriseEnvelope = openSurpriseEnvelope;
+        window.toggleBirthdayMusic = toggleBirthdayMusic;
+        window.blowOutCandles = blowOutCandles;
+        window.enableMicBlowDetection = enableMicBlowDetection;
+
+        window.addEventListener('resize', resizeCanvases);
+        window.onload = function () {
+            loadLetter();
+            resizeCanvases();
+            initFloatingHearts();
+            animateCanvases();
+        };
+    </script>
+</body>
+</html>
